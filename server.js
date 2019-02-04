@@ -1,12 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const passport = require('passport');
 
 const users = require('./routes/api/users');
 const profile = require('./routes/api/profile');
 const posts = require('./routes/api/posts');
 
 const app = express();
+
+// Body parser Middleware 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// Morgan Middleware
+app.use(morgan('dev'));
 
 // DB Config
 const db = require('./config/keys').mongoURI;
@@ -17,11 +26,11 @@ mongoose
   .then(() => console.log('Mongodb Connected'))
   .catch(err => console.log(err));
 
-app.get('/', (req, res) => {
-  res.send('hello');
-});
+// Passport Authentication
+app.use(passport.initialize());
 
-app.use(morgan('dev'));
+// Passport Config
+require('./config/passport')(passport);
 
 // Use Routes 
 app.use('/api/users', users);
